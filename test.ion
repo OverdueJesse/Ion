@@ -1,0 +1,10 @@
+shared isAnimal {
+    name?: string = "No Name :(";
+    sound: string;
+
+    fn
+}
+
+struct Wolf {}
+struct Sheep {}
+

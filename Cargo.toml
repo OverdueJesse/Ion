@@ -1,0 +1,10 @@
+[workspace]
+members = [ "src/error","src/lexer" ]
+
+[package]
+name = "ion"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lexer = { path = "src/lexer" }
