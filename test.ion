@@ -1,10 +1,35 @@
 shared isAnimal {
+    // this is optional
     name?: string = "No Name :(";
-    sound: string;
 
-    fn
+    fn get_name() : string { // optional type declaration
+        name
+    }
+
+    fn make_sound () : nil;
 }
 
 struct Wolf {}
 struct Sheep {}
 
+impl shared isAnimal on Wolf {
+    fn make_sound () {
+        println("awoooo");
+    }
+}
+
+impl shared isAnimal on Sheep {
+    name = "Dolly";
+
+    fn make_sound () {
+        println("bahhh");
+    }
+}
+
+fn main () {
+    let wolf = Wolf {
+        name: "Jake"
+    };
+
+    let sheep = Sheep {};
+}

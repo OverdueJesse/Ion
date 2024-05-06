@@ -59,28 +59,36 @@ impl<'a> Scanner<'a> {
             return None;
         }
 
+        self.start = self.current;
         let mut c: char = '\0';
         let mut token_type: Option<TokenType> = None;
         let mut eaten_string: String = String::new();
 
         // eat spaces and special characters
         while !self.is_at_end() {
-            self.start = self.current;
             c = match self.advance_cursor() {
                 Some(ch) => ch,
                 None => return None,
             };
 
             match c {
-                ' ' | '\t' => {
+                ' ' | '\t' | '\r' => {
                     c = '\0';
                     continue;
                 }
-                '\n' | '\r' => {
+                '\n' => {
                     self.line += 1;
                     self.col = 1;
                     c = '\0';
                     continue;
+                }
+                '/' => {
+                    if self.is_line_comment(c) {
+                        self.absorb_line_comment();
+                        continue;
+                    } else {
+                        break;
+                    }
                 }
                 _ => break,
             };
@@ -224,7 +232,6 @@ impl<'a> Scanner<'a> {
             Some(t) => {
                 // found a token
                 token_type = return (Some(t), s);;
-                ;
             }
             None => {
                 // not a token so we do nothing
@@ -282,8 +289,27 @@ impl<'a> Scanner<'a> {
 
     fn possible_double(c: char) -> bool {
         match c {
-            '=' | '!' | '>' | '<' => true,
+            '=' | '!' | '>' | '<' | '/' => true,
             _ => false,
         }
+    }
+
+    fn is_line_comment(&mut self, current_char: char) -> bool {
+        let mut s = String::from(current_char);
+        let next_char = self.source.peek().unwrap_or_else(|| &'\0');
+        s.push_str(next_char.to_string().as_str());
+
+        s == String::from("//")
+    }
+
+    fn absorb_line_comment(&mut self) {
+        while let Some(c) = self.source.peek() {
+            if c == &'\n' {
+                // line comment finished
+                break;
+            }
+
+            self.advance_cursor();
+        };
     }
 }

@@ -9,7 +9,7 @@ pub fn main() {
     match args.len() {
         2 => compile(&args[1]),
         _ => {
-            println!("error no file given");
+            println!("Error: No filename or path provided.");
             exit(64);
         },
     }
