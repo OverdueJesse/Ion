@@ -1,3 +1,3 @@
 # Ion
  
-A rusty scripting language built on Rust.
+A scripting language built on Rust.
