@@ -9,8 +9,8 @@ Traits in Rust is a very powerful tool to control behavior. However, having a tr
 ## 2. Dynamic Typing
 This flies in the face of Rust, and yet I still feel that a dynamically typed scripting language with a focused functional core is exactly what I want.
 
-## A Functional Core
-Ion's ideology is rooted in functional languages like Rust and Haskell, and strives to naturally lend itself to functional solutions, rather than layers of inheritance and class methods. Data in, data out.
+## Data in, data out
+Ion's ideology is rooted in functional languages like Rust and Haskell, and strives to naturally lend itself to functional solutions, rather than layers of inheritance and class methods.
 
 
 # Current State
