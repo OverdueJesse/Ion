@@ -11,3 +11,8 @@ This flies in the face of Rust, and yet I still feel that a dynamically typed sc
 
 ## A Functional Core
 Ion's ideology is rooted in functional languages like Rust and Haskell, and strives to naturally lend itself to functional solutions, rather than layers of inheritance and class methods. Data in, data out.
+
+
+# Current State
+
+Ion is under daily development, with the lexical analysis stage nearing completion.
