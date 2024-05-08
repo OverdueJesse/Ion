@@ -41,8 +41,3 @@ on one
 for forget
 
 re return returning
-
-// comment works
-let spreadtest = 0..10;
-
-animal.make_sound

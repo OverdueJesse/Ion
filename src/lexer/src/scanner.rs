@@ -113,7 +113,7 @@ impl<'a> Scanner<'a> {
                 Some(
                     Token::new(
                         self.line,
-                        self.col, // - t.to_literal().len(),
+                        self.col - t.to_literal().len(),
                         t,
                     )
                 )
@@ -273,9 +273,25 @@ impl<'a> Scanner<'a> {
         (token_type, s)
     }
 
+    fn is_double(c: &char) -> bool {
+        match c {
+            '!' |
+            '=' |
+            '>' |
+            '<' |
+            '=' |
+            '.' => true,
+            _ => false,
+        }
+    }
+
     fn parse_singleton(&mut self, c: char) -> Option<TokenType> {
-        let double = self.parse_double(c);
+        let mut double = None;
         let single = TokenType::new(&c.to_string());
+
+        if Self::is_double(&c) {
+            double = self.parse_double(c);
+        }
 
         if double.is_some() {
             return double;
