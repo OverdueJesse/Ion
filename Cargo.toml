@@ -1,5 +1,5 @@
 [workspace]
-members = [ "src/error","src/lexer" ]
+members = [ "src/error","src/lexer" , "src/parser"]
 
 [package]
 name = "ion"
@@ -8,3 +8,4 @@ edition = "2021"
 
 [dependencies]
 lexer = { path = "src/lexer" }
+parser = { path = "src/parser" }

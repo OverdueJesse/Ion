@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/lexer/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/error/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/scanner/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/parser/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

@@ -6,8 +6,7 @@ use crate::types::{Token, TokenType};
 pub struct Scanner<'a> {
     source: Peekable<Chars<'a>>,
     source_len: usize,
-    tokens: Vec<Token>,
-    start: usize,
+    pub tokens: Vec<Token>,
     current: usize,
     line: usize,
     col: usize,
@@ -19,7 +18,6 @@ impl<'a> Scanner<'a> {
             source_len: source.len().to_owned(),
             source: source.chars().peekable().to_owned(),
             tokens: vec![],
-            start: 0,
             current: 0,
             line: 1,
             col: 1,
@@ -35,23 +33,19 @@ impl<'a> Scanner<'a> {
         );
     }
 
-    pub fn scan_tokens(&mut self) -> &Vec<Token> {
+    pub fn scan_tokens(&mut self) {
         while let Some(t) = self.next_token() {
             // push token t
-            &self.tokens.push(t);
+            let _ = &self.tokens.push(t);
         }
 
-        &self.tokens.push(
+        let _ = &self.tokens.push(
             Token::new(
-                TokenType::EOF,
-                "".to_string(),
-                "".to_string(),
                 self.line,
                 self.col,
+                TokenType::EOF,
             )
         );
-
-        &self.tokens
     }
 
     pub fn next_token(&mut self) -> Option<Token> {
@@ -59,10 +53,8 @@ impl<'a> Scanner<'a> {
             return None;
         }
 
-        self.start = self.current;
         let mut c: char = '\0';
         let mut token_type: Option<TokenType> = None;
-        let mut eaten_string: String = String::new();
 
         // eat spaces and special characters
         while !self.is_at_end() {
@@ -72,18 +64,13 @@ impl<'a> Scanner<'a> {
             };
 
             match c {
-                ' ' | '\t' | '\r' => {
-                    c = '\0';
-                    continue;
-                }
-                '\n' => {
-                    self.line += 1;
-                    self.col = 1;
+                ' ' | '\t' | '\r' | '\n' => {
                     c = '\0';
                     continue;
                 }
                 '/' => {
                     if self.is_line_comment(c) {
+                        c = '\0';
                         self.absorb_line_comment();
                         continue;
                     } else {
@@ -120,6 +107,7 @@ impl<'a> Scanner<'a> {
 
         if token_type.is_none() {
             // try to parse into token
+            let eaten_string: String;
             (token_type, eaten_string) = Self::parse_token(self, c);
 
             if token_type.is_none() {
@@ -134,11 +122,10 @@ impl<'a> Scanner<'a> {
                 // create and push Token
                 Some(
                     Token::new(
-                        t,
-                        "".to_string(),
-                        "".to_string(),
                         self.line,
-                        self.start)
+                        self.col - t.to_literal().len(),
+                        t,
+                    )
                 )
             }
             None => None,
@@ -152,14 +139,19 @@ impl<'a> Scanner<'a> {
     fn advance_cursor(&mut self) -> Option<char> {
         self.current += 1;
         self.col += 1;
-        self.source.next()
-    }
 
-    fn try_match(s: String) -> Option<TokenType> {
-        match TokenType::new(&s) {
-            Some(t) => Some(t),
-            None => None,
+        let next = self.source.next();
+        match next {
+            Some(c) => {
+                if c == '\n' {
+                    self.line += 1;
+                    self.col = 1;
+                }
+            }
+            None => {}
         }
+
+        next
     }
 
     fn number(&mut self, current_char: char) -> TokenType {
@@ -231,7 +223,7 @@ impl<'a> Scanner<'a> {
         match TokenType::new(&s) {
             Some(t) => {
                 // found a token
-                token_type = return (Some(t), s);;
+                return (Some(t), s);
             }
             None => {
                 // not a token so we do nothing
@@ -264,8 +256,7 @@ impl<'a> Scanner<'a> {
                     break;
                 }
                 '\n' => {
-                    self.line += 1;
-                    self.col = 1;
+                    self.advance_cursor();
                     break;
                 }
                 _ => {}
@@ -304,7 +295,7 @@ impl<'a> Scanner<'a> {
 
     fn absorb_line_comment(&mut self) {
         while let Some(c) = self.source.peek() {
-            if c == &'\n' {
+            if c == &'\n' || c == &'\r' {
                 // line comment finished
                 break;
             }

@@ -1,21 +1,17 @@
 use std::fmt::{self, Debug, Display, Formatter};
 
-const TOKEN_MAX_LEN: i32 = 6;
-
 pub struct Token {
     token_type: TokenType,
-    lexeme: String,
     literal: String,
     line: usize,
     col: usize,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, lexeme: String, literal: String, line: usize, col: usize) -> Token {
+    pub fn new(line: usize, col: usize, token_type: TokenType) -> Token {
         Token {
+            literal: token_type.to_literal().clone(),
             token_type,
-            lexeme,
-            literal,
             line,
             col,
         }
@@ -23,10 +19,6 @@ impl Token {
 
     pub fn get_type(&self) -> &TokenType {
         &self.token_type
-    }
-
-    pub fn get_lexeme(&self) -> &String {
-        &self.lexeme
     }
 
     pub fn get_literal(&self) -> &String {
@@ -43,10 +35,8 @@ impl Token {
 impl Display for Token {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut s: String = String::new();
-        s.push_str(format!("[LINE: {}, ", self.line).as_str());
-        s.push_str(format!("COL: {}] ", self.col).as_str());
+        s.push_str(format!("[LINE: {}, COL: {}] ", self.line, self.col).as_str());
         s.push_str(self.token_type.to_string().as_str());
-        s.push_str(&self.literal);
 
         write!(f, "{}", s)
     }
@@ -54,6 +44,23 @@ impl Display for Token {
 
 
 impl TokenType {
+    pub fn to_literal(&self) -> String {
+        match &self {
+            TokenType::Punctuation(p) => p.to_string(),
+            TokenType::Operators(o) => o.to_string(),
+            TokenType::Identifiers(i) => i.to_string(),
+            TokenType::Type(t) => t.to_string(),
+            TokenType::Bool(b) => b.to_string(),
+
+            TokenType::Name(s)
+            | TokenType::String(s)
+            | TokenType::Number(s) => s.clone(),
+
+            TokenType::Char(c) => c.to_string(),
+            TokenType::EOF => String::from("EOF"),
+        }
+    }
+
     pub fn new(token: &String) -> Option<TokenType> {
         let t = match token.len() {
             1 => match token.as_str() {
@@ -66,6 +73,7 @@ impl TokenType {
                 "," => TokenType::Punctuation(PunctuationKind::COMMA),
                 "." => TokenType::Punctuation(PunctuationKind::DOT),
                 ";" => TokenType::Punctuation(PunctuationKind::SEMICOLON),
+                ":" => TokenType::Punctuation(PunctuationKind::COLON),
                 "?" => TokenType::Punctuation(PunctuationKind::QUESTION),
                 "-" => TokenType::Operators(OperatorKind::MINUS),
                 "+" => TokenType::Operators(OperatorKind::PLUS),
@@ -82,6 +90,7 @@ impl TokenType {
                 "==" => TokenType::Operators(OperatorKind::EqualEqual),
                 ">=" => TokenType::Operators(OperatorKind::GreaterEqual),
                 "<=" => TokenType::Operators(OperatorKind::LessEqual),
+                "=>" => TokenType::Operators(OperatorKind::ARROW),
                 "if" => TokenType::Identifiers(IdentifierKind::IF),
                 "or" => TokenType::Identifiers(IdentifierKind::OR),
                 "on" => TokenType::Identifiers(IdentifierKind::ON),
@@ -161,6 +170,7 @@ pub enum PunctuationKind {
     COMMA,
     DOT,
     SEMICOLON,
+    COLON,
     QUESTION,
 }
 
@@ -176,6 +186,7 @@ impl PunctuationKind {
             PunctuationKind::COMMA => String::from(","),
             PunctuationKind::DOT => String::from("."),
             PunctuationKind::SEMICOLON => String::from(","),
+            PunctuationKind::COLON => String::from(":"),
             PunctuationKind::QUESTION => String::from("?"),
         }
     }
@@ -195,6 +206,7 @@ pub enum OperatorKind {
     GreaterEqual,
     LESS,
     LessEqual,
+    ARROW,
 }
 
 impl OperatorKind {
@@ -212,6 +224,7 @@ impl OperatorKind {
             OperatorKind::EqualEqual => String::from("=="),
             OperatorKind::GreaterEqual => String::from(">="),
             OperatorKind::LessEqual => String::from("<="),
+            OperatorKind::ARROW => String::from("=>"),
         }
     }
 }
@@ -274,8 +287,8 @@ impl TypeKind {
         match &self {
             TypeKind::STRING => String::from("string"),
             TypeKind::NUMBER => String::from("number"),
-            TypeKind::CHAR   => String::from("char"),
-            TypeKind::BOOL   => String::from("bool"),
+            TypeKind::CHAR => String::from("char"),
+            TypeKind::BOOL => String::from("bool"),
         }
     }
 }
