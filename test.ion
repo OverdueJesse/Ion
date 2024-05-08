@@ -1,47 +1,48 @@
- struct Wolf {}
- struct Sheep {
-     fn new(name: string) => this {
-         Sheep { name }
-     }
- }
+struct Wolf {}
+struct Sheep {
+    fn new(name: string) => this {
+        Sheep { name }
+    }
+}
+shared isAnimal {
+    // this is optional
+    name?: string = "No Name :(";
+    fn get_name() => string { // optional type declaration
+        name
+    }
+    fn make_sound () => nil;
+}
+impl shared isAnimal on Wolf {
+    fn make_sound () {
+        println("awoooo");
+    }
+}
+impl shared isAnimal on Sheep {
+    name = "Dolly";
+    fn make_sound () {
+        println("bahhh");
+    }
+}
+fn main () {
+    let wolf = Wolf {
+        name: "Jake",
+    };
+    let sheep = Sheep {};
+    let animal = nil;
+    animal = Sheep::new("Cindy");
+    if animal {
+        animal.make_sound();
+    }
+}
+let test = 5;
+let test2 = 5 + (test * 2);
 
- shared isAnimal {
-     // this is optional
-     name?: string = "No Name :(";
+on one
+for forget
 
-     fn get_name() => string { // optional type declaration
-         name
-     }
+re return returning
 
-     fn make_sound () => nil;
- }
+// comment works
+let spreadtest = 0..10;
 
- impl shared isAnimal on Wolf {
-     fn make_sound () {
-         println("awoooo");
-     }
- }
-
- impl shared isAnimal on Sheep {
-     name = "Dolly";
-
-     fn make_sound () {
-         println("bahhh");
-     }
- }
-
- fn main () {
-     let wolf = Wolf {
-         name: "Jake",
-     };
-
-     let sheep = Sheep {};
-
-     let animal = nil;
-
-     animal = Sheep::new("Cindy");
-
-     if animal {
-         animal.make_sound();
-     }
- }
+animal.make_sound

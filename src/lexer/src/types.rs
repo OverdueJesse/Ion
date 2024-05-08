@@ -91,6 +91,7 @@ impl TokenType {
                 ">=" => TokenType::Operators(OperatorKind::GreaterEqual),
                 "<=" => TokenType::Operators(OperatorKind::LessEqual),
                 "=>" => TokenType::Operators(OperatorKind::ARROW),
+                ".." => TokenType::Operators(OperatorKind::SPREAD),
                 "if" => TokenType::Identifiers(IdentifierKind::IF),
                 "or" => TokenType::Identifiers(IdentifierKind::OR),
                 "on" => TokenType::Identifiers(IdentifierKind::ON),
@@ -207,6 +208,7 @@ pub enum OperatorKind {
     LESS,
     LessEqual,
     ARROW,
+    SPREAD,
 }
 
 impl OperatorKind {
@@ -225,6 +227,7 @@ impl OperatorKind {
             OperatorKind::GreaterEqual => String::from(">="),
             OperatorKind::LessEqual => String::from("<="),
             OperatorKind::ARROW => String::from("=>"),
+            OperatorKind::SPREAD => String::from(".."),
         }
     }
 }

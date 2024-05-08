@@ -54,7 +54,7 @@ impl<'a> Scanner<'a> {
         }
 
         let mut c: char = '\0';
-        let mut token_type: Option<TokenType> = None;
+        let mut token_type: Option<TokenType>;
 
         // eat spaces and special characters
         while !self.is_at_end() {
@@ -85,24 +85,14 @@ impl<'a> Scanner<'a> {
             return None;
         }
 
+        token_type = self.parse_singleton(c);
+
         if c.is_digit(10) { // check Number
-            token_type = Some(self.number(c));
+            token_type = Some(self.parse_number(c));
         } else if c == '"' { // check String
             token_type = Self::parse_string(self);
         } else if c == '\'' {
             token_type = Self::parse_char(self);
-        } else if Self::possible_double(c) {
-            match self.source.peek() {
-                Some(nc) => {
-                    // parse double
-                    let mut double = String::from(c);
-                    double.push_str(nc.to_string().as_str());
-                    token_type = TokenType::new(&double);
-
-                    if token_type.is_some() { self.advance_cursor(); }
-                }
-                None => {}
-            };
         }
 
         if token_type.is_none() {
@@ -123,7 +113,7 @@ impl<'a> Scanner<'a> {
                 Some(
                     Token::new(
                         self.line,
-                        self.col - t.to_literal().len(),
+                        self.col, // - t.to_literal().len(),
                         t,
                     )
                 )
@@ -154,13 +144,49 @@ impl<'a> Scanner<'a> {
         next
     }
 
-    fn number(&mut self, current_char: char) -> TokenType {
+    fn parse_double(&mut self, current: char) -> Option<TokenType> {
+        let mut token_type: Option<TokenType> = None;
+        match self.source.peek() {
+            Some(nc) => {
+                let mut double = String::from(current);
+                double.push_str(nc.to_string().as_str());
+                token_type = TokenType::new(&double);
+
+                if token_type.is_some() { self.advance_cursor(); }
+            }
+            None => {}
+        }
+
+        token_type
+    }
+
+    fn parse_number(&mut self, current_char: char) -> TokenType {
         // peek at next value and continue stacking number string
         let mut s = String::from(current_char);
 
         while let Some(c) = self.source.peek() {
-            // while peek is digit, iter and push to string
-            if c.is_digit(10) || c == &'.' {
+            let ch = c.clone();
+            let dot: char;
+
+            if ch == '.' {
+                dot = self.advance_cursor().unwrap();
+                match self.parse_double(dot) {
+                    Some(t) => {
+                        let _ = &self.tokens.push(
+                            Token::new(
+                                self.line,
+                                self.col - s.len(),
+                                TokenType::Number(s.clone()),
+                            )
+                        );
+
+                        return t;
+                    }
+                    None => {}
+                }
+            }
+
+            if ch.is_digit(10) || ch == '.' {
                 s.push_str(self.advance_cursor().unwrap().to_string().as_str());
             } else {
                 break;
@@ -213,74 +239,56 @@ impl<'a> Scanner<'a> {
         Some(TokenType::String(s.clone()))
     }
 
-    fn parse_token(&mut self, current_char: char)
-                   -> (Option<TokenType>, String)
-    {
+    fn parse_token(&mut self, current_char: char) -> (Option<TokenType>, String) {
         let mut s = String::from(current_char);
         let mut token_type: Option<TokenType> = None;
+        let mut longest_match: usize = 0;
 
-        // try to initially match current_char with TokenType
-        match TokenType::new(&s) {
-            Some(t) => {
-                // found a token
-                return (Some(t), s);
-            }
-            None => {
-                // not a token so we do nothing
-            }
-        };
-
-
-        // BUG: so we use peek, but this results in returning (None, s) if the last char is EOF
-        // Solved by initially trying to match, which isn't horribly inefficient, but not pretty.
         while let Some(c) = self.source.peek() {
-            let mut match_string: String = s.clone();
-            match_string.push_str(c.to_string().as_str());
-            // try to match s with TokenType
-            match TokenType::new(&match_string) {
-                Some(t) => {
-                    // found a token
-                    token_type = Some(t);
-                    self.advance_cursor();
-                    break;
-                }
-                None => {
-                    // not a token so we do nothing
-                }
-            };
+            let next_char = c.clone();
 
-            // absorb spaces and chars
-            match c {
-                ' ' | '\t' | '\r' => {
-                    self.advance_cursor();
-                    break;
+            let keyword_match = TokenType::new(&s);
+            if let Some(t) = keyword_match {
+                if s.len() >= longest_match {
+                    token_type = Some(t);
+                    longest_match = s.len();
                 }
-                '\n' => {
-                    self.advance_cursor();
-                    break;
-                }
-                _ => {}
             }
 
-            // try to convert next char to TokenType
-            match TokenType::new(&c.to_string()) {
-                Some(_t) => {
-                    // next char is a valid token, thus we break and return
-                    break;
-                }
-                None => {
-                    // next char invalid TokenType so we iter
-                    s.push_str(self.advance_cursor().unwrap().to_string().as_str());
-                }
-            };
-        };
+            let name_match = Some(TokenType::Name(s.clone()));
+            if s.len() > longest_match {
+                token_type = name_match;
+                longest_match = s.len();
+            }
+
+            // try to match next char alone
+            let next_char_type = TokenType::new(&next_char.to_string());
+            if Self::stop_char(&next_char) || next_char_type.is_some() {
+                break;
+            }
+
+            s.push(self.advance_cursor().unwrap());
+        }
 
         (token_type, s)
     }
 
-    fn possible_double(c: char) -> bool {
+    fn parse_singleton(&mut self, c: char) -> Option<TokenType> {
+        let double = self.parse_double(c);
+        let single = TokenType::new(&c.to_string());
+
+        if double.is_some() {
+            return double;
+        } else if single.is_some() {
+            return single;
+        }
+
+        None
+    }
+
+    fn stop_char(c: &char) -> bool {
         match c {
-            '=' | '!' | '>' | '<' | '/' => true,
+            '\n' | '\r' | ' ' | '.' => true,
             _ => false,
         }
     }

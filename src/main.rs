@@ -29,5 +29,5 @@ fn compile(path: &String) {
     }
 
     // parsing
-    let _parser = Parser::new();
+    let _parser = Parser::new(tokens);
 }
