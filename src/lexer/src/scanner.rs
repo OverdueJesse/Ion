@@ -243,9 +243,10 @@ impl<'a> Scanner<'a> {
         let mut s = String::from(current_char);
         let mut token_type: Option<TokenType> = None;
         let mut longest_match: usize = 0;
+        let mut next_char = '\0';
 
         while let Some(c) = self.source.peek() {
-            let next_char = c.clone();
+            next_char = c.clone();
 
             let keyword_match = TokenType::new(&s);
             if let Some(t) = keyword_match {
@@ -268,6 +269,14 @@ impl<'a> Scanner<'a> {
             }
 
             s.push(self.advance_cursor().unwrap());
+        }
+
+        if self.source.peek().is_none() {
+            if let Some(t) = TokenType::new(&s) {
+                token_type = Some(t);
+            } else {
+                token_type = Some(TokenType::Name(s.clone()));
+            }
         }
 
         (token_type, s)
