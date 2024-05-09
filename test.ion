@@ -42,5 +42,7 @@ for forget
 
 re return returning
 
+let test = 5
+
 make_sound
 }

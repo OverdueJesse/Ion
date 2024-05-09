@@ -67,7 +67,7 @@ impl<'a> Scanner<'a> {
                 ' ' | '\t' | '\r' | '\n' => {
                     c = '\0';
                     continue;
-                }
+                },
                 '/' => {
                     if self.is_line_comment(c) {
                         c = '\0';
@@ -76,6 +76,11 @@ impl<'a> Scanner<'a> {
                     } else {
                         break;
                     }
+                },
+                '#' => {
+                    c = '\0';
+                    self.absorb_block_comment();
+                    continue;
                 }
                 _ => break,
             };
@@ -332,6 +337,17 @@ impl<'a> Scanner<'a> {
             }
 
             self.advance_cursor();
+        };
+    }
+
+    fn absorb_block_comment(&mut self) {
+        while let Some(c) = self.source.peek() {
+            if c == &'#' {
+                let _ = self.advance_cursor();
+                break;
+            } else {
+                self.advance_cursor();
+            }
         };
     }
 }
