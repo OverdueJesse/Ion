@@ -243,10 +243,9 @@ impl<'a> Scanner<'a> {
         let mut s = String::from(current_char);
         let mut token_type: Option<TokenType> = None;
         let mut longest_match: usize = 0;
-        let mut next_char = '\0';
 
         while let Some(c) = self.source.peek() {
-            next_char = c.clone();
+            let next_char = c.clone();
 
             let keyword_match = TokenType::new(&s);
             if let Some(t) = keyword_match {
@@ -288,7 +287,6 @@ impl<'a> Scanner<'a> {
             '=' |
             '>' |
             '<' |
-            '=' |
             '.' => true,
             _ => false,
         }
