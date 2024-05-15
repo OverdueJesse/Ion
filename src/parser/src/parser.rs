@@ -1,4 +1,4 @@
-use lexer::types::{Token};
+use lexer::types::Token;
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -6,9 +6,7 @@ pub struct Parser {
 
 impl Parser {
     pub fn new(tokens: Vec<Token>) -> Self {
-        Parser {
-            tokens,
-        }
+        Parser { tokens }
     }
 
     pub fn print_tokens(&self) {

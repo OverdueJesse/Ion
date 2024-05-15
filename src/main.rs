@@ -1,9 +1,6 @@
-use std::{
-    env,
-    process::{exit},
-};
-use lexer::{scanner::Scanner, file_sys::file_to_string};
+use lexer::{file_sys::file_to_string, scanner::Scanner};
 use parser::parser::Parser;
+use std::{env, process::exit};
 
 pub fn main() {
     let args: Vec<String> = env::args().collect();
@@ -12,7 +9,7 @@ pub fn main() {
         _ => {
             println!("Error: No filename or path provided.");
             exit(64);
-        },
+        }
     }
 }
 

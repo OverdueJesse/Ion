@@ -17,3 +17,4 @@ pub fn file_to_string(path: &String) -> String {
 
     String::from_utf8_lossy(&*buffer).into_owned()
 }
+

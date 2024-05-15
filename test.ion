@@ -1,3 +1,4 @@
+#
 struct Wolf {}
 struct Sheep {
     fn new(name: string) => this {
@@ -42,7 +43,21 @@ for forget
 
 re return returning
 
-let test = 5
 
-make_sound
+let test1: number = 10;
+let test2 := 5;
+
+
+match test {
+    _ => return 5,
 }
+
+test | 2 || 12 && test2
+
+let 😀 = "😀";
+->
+// comment at end [0 .. s.len()] 
+0..10
+0 .. 10
+#
+let 食事 = 5;

@@ -1,7 +1,7 @@
+use crate::types::{Token, TokenType};
+use error::types::{CompilerError, ErrorTypes};
 use std::iter::Peekable;
 use std::str::Chars;
-use error::types::{CompilerError, ErrorTypes};
-use crate::types::{Token, TokenType};
 
 pub struct Scanner<'a> {
     source: Peekable<Chars<'a>>,
@@ -24,12 +24,18 @@ impl<'a> Scanner<'a> {
         }
     }
 
-    pub fn throw_scanner_error(&self, error_type: ErrorTypes, message: &str, col_adj: Option<usize>) {
+    pub fn throw_scanner_error(
+        &self,
+        error_type: ErrorTypes,
+        message: &str,
+        col_adj: Option<usize>,
+    ) {
         CompilerError::throw_new(
             self.line,
             self.col - col_adj.unwrap_or_else(|| 0),
             message,
-            error_type, None,
+            error_type,
+            None,
         );
     }
 
@@ -39,13 +45,9 @@ impl<'a> Scanner<'a> {
             let _ = &self.tokens.push(t);
         }
 
-        let _ = &self.tokens.push(
-            Token::new(
-                self.line,
-                self.col,
-                TokenType::EOF,
-            )
-        );
+        let _ = &self
+            .tokens
+            .push(Token::new(self.line, self.col, TokenType::EOF));
     }
 
     pub fn next_token(&mut self) -> Option<Token> {
@@ -67,7 +69,7 @@ impl<'a> Scanner<'a> {
                 ' ' | '\t' | '\r' | '\n' => {
                     c = '\0';
                     continue;
-                },
+                }
                 '/' => {
                     if self.is_line_comment(c) {
                         c = '\0';
@@ -76,7 +78,7 @@ impl<'a> Scanner<'a> {
                     } else {
                         break;
                     }
-                },
+                }
                 '#' => {
                     c = '\0';
                     self.absorb_block_comment();
@@ -92,9 +94,11 @@ impl<'a> Scanner<'a> {
 
         token_type = self.parse_singleton(c);
 
-        if c.is_digit(10) { // check Number
+        if c.is_digit(10) {
+            // check Number
             token_type = Some(self.parse_number(c));
-        } else if c == '"' { // check String
+        } else if c == '"' {
+            // check String
             token_type = Self::parse_string(self);
         } else if c == '\'' {
             token_type = Self::parse_char(self);
@@ -115,13 +119,7 @@ impl<'a> Scanner<'a> {
         match token_type {
             Some(t) => {
                 // create and push Token
-                Some(
-                    Token::new(
-                        self.line,
-                        self.col - t.to_literal().len(),
-                        t,
-                    )
-                )
+                Some(Token::new(self.line, self.col - t.to_literal().len(), t))
             }
             None => None,
         }
@@ -157,7 +155,9 @@ impl<'a> Scanner<'a> {
                 double.push_str(nc.to_string().as_str());
                 token_type = TokenType::new(&double);
 
-                if token_type.is_some() { self.advance_cursor(); }
+                if token_type.is_some() {
+                    self.advance_cursor();
+                }
             }
             None => {}
         }
@@ -177,13 +177,11 @@ impl<'a> Scanner<'a> {
                 dot = self.advance_cursor().unwrap();
                 match self.parse_double(dot) {
                     Some(t) => {
-                        let _ = &self.tokens.push(
-                            Token::new(
-                                self.line,
-                                self.col - s.len(),
-                                TokenType::Number(s.clone()),
-                            )
-                        );
+                        let _ = &self.tokens.push(Token::new(
+                            self.line,
+                            self.col - s.len(),
+                            TokenType::Number(s.clone()),
+                        ));
 
                         return t;
                     }
@@ -196,7 +194,7 @@ impl<'a> Scanner<'a> {
             } else {
                 break;
             }
-        };
+        }
 
         TokenType::Number(s.clone())
     }
@@ -213,7 +211,7 @@ impl<'a> Scanner<'a> {
             } else {
                 s.push_str(self.advance_cursor().unwrap().to_string().as_str());
             }
-        };
+        }
 
         if s.len() == 1 {
             Some(TokenType::Char(s.chars().nth(0).unwrap()))
@@ -239,7 +237,7 @@ impl<'a> Scanner<'a> {
             } else {
                 s.push_str(self.advance_cursor().unwrap().to_string().as_str());
             }
-        };
+        }
 
         Some(TokenType::String(s.clone()))
     }
@@ -288,11 +286,7 @@ impl<'a> Scanner<'a> {
 
     fn is_double(c: &char) -> bool {
         match c {
-            '!' |
-            '=' |
-            '>' |
-            '<' |
-            '.' => true,
+            '!' | '=' | '>' | '<' | '.' | ':' | '|' | '&' | '-' => true,
             _ => false,
         }
     }
@@ -337,7 +331,7 @@ impl<'a> Scanner<'a> {
             }
 
             self.advance_cursor();
-        };
+        }
     }
 
     fn absorb_block_comment(&mut self) {
@@ -348,6 +342,6 @@ impl<'a> Scanner<'a> {
             } else {
                 self.advance_cursor();
             }
-        };
+        }
     }
 }

@@ -29,7 +29,9 @@ impl Token {
         &self.line
     }
 
-    pub fn get_col(&self) -> &usize { &self.col }
+    pub fn get_col(&self) -> &usize {
+        &self.col
+    }
 }
 
 impl Display for Token {
@@ -42,7 +44,6 @@ impl Display for Token {
     }
 }
 
-
 impl TokenType {
     pub fn to_literal(&self) -> String {
         match &self {
@@ -52,9 +53,7 @@ impl TokenType {
             TokenType::Type(t) => t.to_string(),
             TokenType::Bool(b) => b.to_string(),
 
-            TokenType::Name(s)
-            | TokenType::String(s)
-            | TokenType::Number(s) => s.clone(),
+            TokenType::Name(s) | TokenType::String(s) | TokenType::Number(s) => s.clone(),
 
             TokenType::Char(c) => c.to_string(),
             TokenType::EOF => String::from("EOF"),
@@ -83,6 +82,7 @@ impl TokenType {
                 "=" => TokenType::Operators(OperatorKind::EQUAL),
                 ">" => TokenType::Operators(OperatorKind::GREATER),
                 "<" => TokenType::Operators(OperatorKind::LESS),
+                "|" => TokenType::Operators(OperatorKind::BAR),
                 _ => return None,
             },
             2 => match token.as_str() {
@@ -91,15 +91,17 @@ impl TokenType {
                 ">=" => TokenType::Operators(OperatorKind::GreaterEqual),
                 "<=" => TokenType::Operators(OperatorKind::LessEqual),
                 "=>" => TokenType::Operators(OperatorKind::ARROW),
+                "->" => TokenType::Operators(OperatorKind::SingleArrow),
                 ".." => TokenType::Operators(OperatorKind::SPREAD),
+                ":=" => TokenType::Operators(OperatorKind::ColonEqual),
+                "&&" => TokenType::Operators(OperatorKind::AND),
+                "||" => TokenType::Operators(OperatorKind::OR),
                 "if" => TokenType::Identifiers(IdentifierKind::IF),
-                "or" => TokenType::Identifiers(IdentifierKind::OR),
                 "on" => TokenType::Identifiers(IdentifierKind::ON),
                 "fn" => TokenType::Identifiers(IdentifierKind::FN),
-                _ => return None
+                _ => return None,
             },
             3 => match token.as_str() {
-                "and" => TokenType::Identifiers(IdentifierKind::AND),
                 "for" => TokenType::Identifiers(IdentifierKind::FOR),
                 "let" => TokenType::Identifiers(IdentifierKind::LET),
                 "nil" => TokenType::Identifiers(IdentifierKind::NIL),
@@ -118,6 +120,7 @@ impl TokenType {
             5 => match token.as_str() {
                 "super" => TokenType::Identifiers(IdentifierKind::SUPER),
                 "while" => TokenType::Identifiers(IdentifierKind::WHILE),
+                "match" => TokenType::Identifiers(IdentifierKind::MATCH),
                 "false" => TokenType::Bool(false),
                 _ => return None,
             },
@@ -209,6 +212,11 @@ pub enum OperatorKind {
     LessEqual,
     ARROW,
     SPREAD,
+    ColonEqual,
+    AND,
+    OR,
+    BAR,
+    SingleArrow,
 }
 
 impl OperatorKind {
@@ -228,6 +236,11 @@ impl OperatorKind {
             OperatorKind::LessEqual => String::from("<="),
             OperatorKind::ARROW => String::from("=>"),
             OperatorKind::SPREAD => String::from(".."),
+            OperatorKind::ColonEqual => String::from(":="),
+            OperatorKind::AND => String::from("&&"),
+            OperatorKind::OR => String::from("||"),
+            OperatorKind::BAR => String::from("|"),
+            OperatorKind::SingleArrow => String::from("->"),
         }
     }
 }
@@ -235,10 +248,8 @@ impl OperatorKind {
 #[derive(Debug, Clone)]
 pub enum IdentifierKind {
     IF,
-    OR,
     ON,
     FN,
-    AND,
     FOR,
     LET,
     NIL,
@@ -251,16 +262,15 @@ pub enum IdentifierKind {
     ENUM,
     IMPL,
     SHARED,
+    MATCH,
 }
 
 impl IdentifierKind {
     pub fn to_string(&self) -> String {
         match &self {
             IdentifierKind::IF => String::from("if"),
-            IdentifierKind::OR => String::from("or"),
             IdentifierKind::ON => String::from("on"),
             IdentifierKind::FN => String::from("fn"),
-            IdentifierKind::AND => String::from("and"),
             IdentifierKind::FOR => String::from("for"),
             IdentifierKind::LET => String::from("let"),
             IdentifierKind::NIL => String::from("nil"),
@@ -273,6 +283,7 @@ impl IdentifierKind {
             IdentifierKind::ENUM => String::from("enum"),
             IdentifierKind::IMPL => String::from("impl"),
             IdentifierKind::SHARED => String::from("shared"),
+            IdentifierKind::MATCH => String::from("match"),
         }
     }
 }
