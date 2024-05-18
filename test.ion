@@ -60,4 +60,20 @@ let 😀 = "😀";
 0..10
 0 .. 10
 #
-let 食事 = 5;
+
+
+
+
+
+// real test code
+let test = 5;
+let test2 = 10;
+
+let test3 = 10 - 5;
+
+
+
+
+
+
+

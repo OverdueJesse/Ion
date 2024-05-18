@@ -1,10 +1,10 @@
 use std::fmt::{self, Debug, Display, Formatter};
 
 pub struct Token {
-    token_type: TokenType,
-    literal: String,
-    line: usize,
-    col: usize,
+    pub token_type: TokenType,
+    pub literal: String,
+    pub line: usize,
+    pub col: usize,
 }
 
 impl Token {
@@ -145,7 +145,7 @@ impl Display for TokenType {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TokenType {
     // Matched here
     Punctuation(PunctuationKind),
@@ -163,7 +163,7 @@ pub enum TokenType {
     EOF,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PunctuationKind {
     LPAREN,
     RPAREN,
@@ -196,7 +196,7 @@ impl PunctuationKind {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum OperatorKind {
     SLASH,
     STAR,
@@ -245,7 +245,7 @@ impl OperatorKind {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IdentifierKind {
     IF,
     ON,
@@ -288,7 +288,7 @@ impl IdentifierKind {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypeKind {
     STRING,
     NUMBER,

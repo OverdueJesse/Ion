@@ -19,12 +19,9 @@ fn compile(path: &String) {
     let file_path = file_to_string(path);
     let mut scanner = Scanner::new(&file_path);
     scanner.scan_tokens();
-    let tokens = scanner.tokens;
-
-    for token in tokens.iter() {
-        println!("{}", token.to_string());
-    }
+    let mut tokens = scanner.tokens;
 
     // parsing
-    let _parser = Parser::new(tokens);
+    let mut parser = Parser::new(&mut tokens);
+    parser.parse();
 }
