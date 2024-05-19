@@ -20,8 +20,9 @@ fn compile(path: &String) {
     let mut scanner = Scanner::new(&file_path);
     scanner.scan_tokens();
     let mut tokens = scanner.tokens;
-
+    
     // parsing
     let mut parser = Parser::new(&mut tokens);
-    parser.parse();
+    let ast = parser.parse_program();
+    ast.print_nodes();
 }

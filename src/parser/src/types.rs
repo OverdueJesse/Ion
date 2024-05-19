@@ -1,5 +1,7 @@
+use std::fmt::{self, Display, Formatter};
+
 pub struct Program {
-    tree: Vec<Node>,
+    pub tree: Vec<Node>,
 }
 
 impl Program {
@@ -9,11 +11,26 @@ impl Program {
     pub fn push_node(&mut self, node: Node) {
         self.tree.push(node);
     }
+    pub fn print_nodes(&self) {
+        println!("{self}");
+    }
 }
 
+impl Display for Program {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let mut s: String = String::new();
+        for node in self.tree.iter() {
+            s.push_str(node.to_string().as_str());
+            s.push_str("\n");
+        }
+        write!(f, "{}", s)
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum Node {
     Literal(Literal),
-    Assignment(Assignment),
+    Declaration(Declaration),
     BinaryExpr {
         op: Operator,
         lhs: Box<Node>,
@@ -21,6 +38,13 @@ pub enum Node {
     },
 }
 
+impl Display for Node {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum Operator {
     Add,
     Sub,
@@ -28,6 +52,7 @@ pub enum Operator {
     Mult,
 }
 
+#[derive(Debug, Clone)]
 pub enum Literal {
     Float(f32),
     BigFloat(f64),
@@ -36,7 +61,8 @@ pub enum Literal {
     Boolean(bool),
 }
 
-pub struct Assignment {
-    symbol: String,
-    value: Box<Node>,
+#[derive(Debug, Clone)]
+pub struct Declaration {
+    pub symbol: String,
+    pub value: Box<Node>,
 }
