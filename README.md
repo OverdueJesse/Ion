@@ -15,4 +15,4 @@ Ion's ideology is rooted in functional languages like Rust and Haskell, and stri
 
 # Current State
 
-Ion is under daily development, with the lexical analysis stage nearing completion.
+Lexical analysis is complete and parsing is underway. Currently it will parse declarations of type string or number. Expressions are next up to provide Ion with more flexibility.

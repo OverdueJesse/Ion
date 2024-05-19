@@ -52,41 +52,37 @@ impl<'a> Parser<'a> {
         self.iter.next()
     }
 
-    pub fn expect_token(&mut self, expected: TokenType) -> (bool, Option<&Token>) {
-        if let Some(next) = self.iter.next() {
-            if discriminant(&expected) == discriminant(&next.token_type) {
-                return (true, Some(next));
-            }
+    pub fn expect_token(&mut self, expected: TokenType) -> Option<&Token> {
+        let token = match self.iter.next() {
+            Some(t) => t,
+            None => panic!("Error reading token."),
+        };
 
-            panic!("Error on [{}, {}]: Unexpected token.", next.line, next.col,);
+        if discriminant(&expected) == discriminant(&token.token_type) {
+            return Some(token);
         }
 
-        (false, None)
+        panic!(
+            "[{},{}] ERROR: Unexpected token: {}",
+            token.line, token.col, token.literal
+        );
     }
 
-    pub fn check_semicolon(&mut self) -> bool {
-        match self.expect_token(TokenType::Punctuation(
+    pub fn check_semicolon(&mut self) {
+        self.expect_token(TokenType::Punctuation(
             lexer::types::PunctuationKind::SEMICOLON,
-        )) {
-            (s, _) => s,
-        }
+        ));
     }
 
     pub fn parser_declaration(&mut self) -> Option<Node> {
         let mut symbol = String::new();
-        let (mut success, next_token) = self.expect_token(TokenType::Name(String::new()));
-        if !success {
-            return None;
-        }
+        let next_token = self.expect_token(TokenType::Name(String::new()));
+        
         if let TokenType::Name(n) = &next_token.unwrap().token_type {
             symbol = n.clone();
         }
 
-        (success, _) = self.expect_token(TokenType::Operators(OperatorKind::EQUAL));
-        if !success {
-            return None;
-        }
-
+        let _ = self.expect_token(TokenType::Operators(OperatorKind::EQUAL));
 
         // get value
         let value = match self.next_node() {
@@ -94,10 +90,7 @@ impl<'a> Parser<'a> {
             None => return None,
         };
 
-
-        if !self.check_semicolon() {
-            panic!("Expected semicolon");
-        }
+        self.check_semicolon();
 
         Some(Node::Declaration(Declaration {
             symbol,
